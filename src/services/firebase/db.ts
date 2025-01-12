@@ -1,30 +1,25 @@
-import { db } from './init';
-import { 
-  collection,
-  doc,
-  setDoc,
-  updateDoc,
-  onSnapshot
-} from 'firebase/firestore';
-import type { UserProfile } from './types';
+import { doc, setDoc, updateDoc, increment, getDoc } from 'firebase/firestore';
+import { db } from './config';
+import type { User } from '../../types/tools';
 
-export const userCollection = collection(db, 'users');
-export const toolsCollection = collection(db, 'tools');
-export const fieldsCollection = collection(db, 'fields');
-
-export const createUserProfile = async (userId: string, data: Partial<UserProfile>) => {
-  await setDoc(doc(userCollection, userId), data);
+export const createUser = async (telegramId: number, username: string) => {
+  await setDoc(doc(db, 'users', telegramId.toString()), {
+    telegramId,
+    username,
+    balance: 0,
+    tools: [],
+    miningCount: 0,
+    createdAt: new Date()
+  });
 };
 
-export const updateUserBalance = async (userId: string, balance: number) => {
-  await updateDoc(doc(userCollection, userId), { balance });
+export const updateUserBalance = async (userId: string, amount: number) => {
+  await updateDoc(doc(db, 'users', userId), {
+    balance: increment(amount)
+  });
 };
 
-export const subscribeToUserData = (
-  userId: string, 
-  callback: (data: UserProfile | null) => void
-) => {
-  return onSnapshot(doc(userCollection, userId), 
-    (doc) => callback(doc.data() as UserProfile | null)
-  );
+export const getUser = async (userId: string): Promise<User | null> => {
+  const userDoc = await getDoc(doc(db, 'users', userId));
+  return userDoc.exists() ? userDoc.data() as User : null;
 };

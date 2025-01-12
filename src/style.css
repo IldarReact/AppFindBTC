@@ -1,0 +1,94 @@
+:root {
+  --hex-size: 60px;
+  --hex-color: #2a2a2a;
+  --hex-border: #3a3a3a;
+  --hex-hover: #3a3a3a;
+  --hex-mined: #1a1a1a;
+}
+
+.app {
+  min-height: 100vh;
+  background: #121212;
+  color: white;
+  padding: 16px;
+}
+
+.hex-grid {
+  display: grid;
+  grid-template-columns: repeat(5, var(--hex-size));
+  gap: 4px;
+  padding: 16px;
+  justify-content: center;
+}
+
+.hex-cell {
+  width: var(--hex-size);
+  height: calc(var(--hex-size) * 1.1547);
+  background: var(--hex-color);
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--hex-border);
+  position: relative;
+}
+
+.hex-cell:hover:not(.mined) {
+  background: var(--hex-hover);
+}
+
+.hex-cell.mined {
+  background: var(--hex-mined);
+  cursor: not-allowed;
+}
+
+.hex-cell.in-range {
+  border-color: #4a4a4a;
+}
+
+.resource-indicator {
+  font-size: 10px;
+  color: white;
+  text-align: center;
+}
+
+.token-balance {
+  background: #1a1a1a;
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.token-balance-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.token-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.tool-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  padding: 16px;
+  margin-top: 24px;
+}
+
+.tool-card {
+  background: #1a1a1a;
+  padding: 16px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
