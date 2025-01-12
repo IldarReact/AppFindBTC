@@ -13,42 +13,6 @@
   padding: 16px;
 }
 
-.hex-grid {
-  display: grid;
-  grid-template-columns: repeat(5, var(--hex-size));
-  gap: 4px;
-  padding: 16px;
-  justify-content: center;
-}
-
-.hex-cell {
-  width: var(--hex-size);
-  height: calc(var(--hex-size) * 1.1547);
-  background: var(--hex-color);
-  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid var(--hex-border);
-  position: relative;
-}
-
-.hex-cell:hover:not(.mined) {
-  background: var(--hex-hover);
-}
-
-.hex-cell.mined {
-  background: var(--hex-mined);
-  cursor: not-allowed;
-}
-
-.hex-cell.in-range {
-  border-color: #4a4a4a;
-}
-
 .resource-indicator {
   font-size: 10px;
   color: white;
@@ -91,4 +55,56 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.hex-grid {
+  position: relative;
+  width: 638px; /* HEX_WIDTH * 11 */
+  height: 464px; /* VERT_DISTANCE * 10 */
+}
+
+.hex-cell {
+  position: absolute;
+  width: 58px;
+  height: 58px;
+  background-color: #ccc;
+  clip-path: polygon(50% 8%, 92% 26%, 92% 74%, 50% 92%, 8% 74%, 8% 26%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1));
+}
+
+.hexagon {
+  width: 58px;
+  height: 58px;
+  background-color: #ccc;
+  clip-path: polygon(50% 8%, 92% 26%, 92% 74%, 50% 92%, 8% 74%, 8% 26%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1));
+}
+
+.hex-cell.revealed {
+  background-color: #065f46; /* Emerald-800 */
+}
+
+.hex-cell.empty {
+  background-color: #111827; /* Gray-900 */
+}
+
+.hexagon-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.875rem; /* text-sm */
+  font-weight: bold;
 }

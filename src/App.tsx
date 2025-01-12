@@ -1,11 +1,10 @@
 import { useEffect } from 'react';
-import { Grid } from './components/HexGrid/Grid';
 import { ToolList } from './components/Shop/ToolList';
 import { WebAppService } from './services/telegram/webApp';
-import { useGameStore } from './store/gameStore';
+import HexGrid from './components/Field/HexGrid';
+import Balance from './components/Profile/Balance';
 
 function App() {
-  const { balance } = useGameStore();
 
   useEffect(() => {
     const init = async () => {
@@ -20,19 +19,8 @@ function App() {
 
   return (
     <div className="app">
-      <div className="token-balance">
-        {Object.entries(balance).map(([token, amount]) => (
-          <div key={token} className="token-balance-item">
-            <img
-              src={`/tokens/${token.toLowerCase()}.svg`}
-              alt={token}
-              className="token-icon"
-            />
-            <span>{amount}</span>
-          </div>
-        ))}
-      </div>
-      <Grid />
+      <Balance />
+      <HexGrid />
       <ToolList />
     </div>
   );
