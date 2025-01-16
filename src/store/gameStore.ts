@@ -1,46 +1,66 @@
 import { create } from 'zustand';
-import { generateInitialGrid } from '@/utils/grid';
-import { Cell, Tool } from '@/types/game';
+import { generateInitialGrid } from '@/shared/utils/grid';
+import { Cell, Tool } from '@/shared/types/game.types';
+import { updateUserBalance } from '@/shared/api/firebase/user';
 
 interface GameState {
   cells: Record<string, Cell>;
   balance: {
-    BTC: number;
-    USDT: number;
+    ETH: number;
     TON: number;
+    $: number;
   };
   tools: Tool[];
-  mineCell: (cellId: string) => void;
+  mineCell: (cellId: string, userId: string) => void;
   buyTool: (tool: Tool) => boolean;
 }
 
 const initialBalance = {
-  BTC: 0,
-  USDT: 0.2,
-  TON: 0
+  ETH: 0,
+  TON: 0,
+  $: 0
 };
 
 export const useGameStore = create<GameState>((set, get) => ({
   cells: generateInitialGrid(),
   balance: initialBalance,
   tools: [],
-  mineCell: (cellId) => {
+  mineCell: (cellId, userId) => {
     const cell = get().cells[cellId];
-    if (cell.mined) return;
+    if (!cell) {
+      console.error(`Ячейка с ID ${cellId} не найдена.`);
+      return;
+    }
+
+    if (cell.mined) {
+      console.log(`Ячейка ${cellId} уже добыта.`);
+      return;
+    }
+
+    console.log(`Добываем ресурсы из ячейки ${cellId}:`, cell.resources);
 
     Object.entries(cell.resources).forEach(([token, amount]) => {
       if (amount && amount > 0) {
         const tokenKey = token as keyof typeof initialBalance;
+        console.log(`Добавляем ${amount} ${token} к балансу.`);
+
         set((state) => ({
           balance: {
             ...state.balance,
-            [tokenKey]: state.balance[tokenKey] + amount
+            [tokenKey]: state.balance[tokenKey] + amount,
           },
           cells: {
             ...state.cells,
-            [cellId]: { ...cell, resources: { [token]: 0 }, mined: true }
-          }
+            [cellId]: { ...cell, mined: true },
+          },
         }));
+
+        console.log(`Новый баланс:`, get().balance);
+
+        // Обновляем баланс в Firebase
+        updateUserBalance(userId, amount).then(() => {
+          console.log(`Баланс пользователя ${userId} обновлен в Firebase.`);
+        });
       }
     });
   },
@@ -52,11 +72,11 @@ export const useGameStore = create<GameState>((set, get) => ({
         tools: [...state.tools, tool],
         balance: {
           ...state.balance,
-          [tokenKey]: state.balance[tokenKey] - tool.price
-        }
+          [tokenKey]: state.balance[tokenKey] - tool.price,
+        },
       }));
       return true;
     }
     return false;
-  }
+  },
 }));

@@ -6,7 +6,7 @@ export const AVAILABLE_TOOLS = [
         type: 'pickaxe' as const,
         range: 1,
         uses: 1 as const,
-        tokenType: 'USDT' as const,
+        tokenType: '$' as const,
         power: 1
     },
     {
@@ -16,7 +16,7 @@ export const AVAILABLE_TOOLS = [
         type: 'bomb' as const,
         range: 2,
         uses: 1 as const,
-        tokenType: 'USDT' as const,
+        tokenType: '$' as const,
         power: 0.5
     }
 ];

@@ -1,8 +1,9 @@
 import React from 'react';
 import HexCell from './HexCell';
+import { Cell } from '@/shared/types/game.types';
 
 interface HexRowProps {
-  row: (string | null)[];
+  row: (Cell | undefined)[];
   rowIndex: number;
   revealedCells: Set<string>;
   onCellClick: (rowIndex: number, cellIndex: number) => void;

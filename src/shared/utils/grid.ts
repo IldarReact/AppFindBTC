@@ -1,9 +1,9 @@
-import { Cell } from "@/types/game";
+import { Cell } from "@/shared/types/game.types";
 
 export const generateInitialGrid = () => {
     const cells: Record<string, Cell> = {};
     const size = 5;
-    const tokens = ['BTC', 'USDT', 'TON'];
+    const tokens = ['ETH', 'BTC', 'TON'];
 
     for (let x = 0; x < size; x++) {
         for (let y = 0; y < size; y++) {

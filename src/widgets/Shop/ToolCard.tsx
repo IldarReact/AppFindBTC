@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tool } from '../../types/game';
+import { Tool } from '../../shared/types/game.types';
 import { useGameStore } from '../../store/gameStore';
 
 interface ToolCardProps {

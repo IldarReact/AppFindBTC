@@ -10,8 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ton/core": "^0.59.1",
+    "@ton/crypto": "^3.3.0",
+    "@ton/ton": "^15.1.0",
     "@twa-dev/sdk": "^8.0.1",
     "amqplib": "^0.10.5",
+    "buffer": "^6.0.3",
+    "ethers": "^6.13.5",
     "firebase": "^11.1.0",
     "framer-motion": "^11.17.0",
     "react": "^18.3.1",
@@ -19,6 +24,7 @@
     "react-router": "^6.28.1",
     "react-router-dom": "^6.28.1",
     "telegraf": "^4.16.3",
+    "vite-plugin-node-polyfills": "^0.22.0",
     "web3": "^4.16.0",
     "zustand": "^5.0.3"
   },

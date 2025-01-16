@@ -1,3 +1,5 @@
+export type TokenType = "ETH" | "BTC" | "TON" | "$";
+
 export interface Tool {
     id: string;
     name: string;
@@ -5,7 +7,7 @@ export interface Tool {
     type: 'pickaxe' | 'bomb';
     range: number;
     uses: number;
-    tokenType: 'BTC' | 'USDT' | 'TON';
+    tokenType: TokenType;
     power: number;
 }
 
@@ -14,7 +16,7 @@ export interface Cell {
     position: { x: number; y: number };
     resources: {
         BTC?: number;
-        USDT?: number;
+        ETH?: number;
         TON?: number;
     };
     mined: boolean;
@@ -23,7 +25,7 @@ export interface Cell {
 export interface UserStats {
     totalMined: {
         BTC: number;
-        USDT: number;
+        ETH: number;
         TON: number;
     };
     toolsUsed: number;

@@ -1,6 +1,6 @@
 import { doc, setDoc, updateDoc, increment, getDoc } from 'firebase/firestore';
 import { db } from './config';
-import type { User } from '../../types/tools';
+import type { User } from '../../types/tools.types';
 
 export const createUser = async (telegramId: number, username: string) => {
   await setDoc(doc(db, 'users', telegramId.toString()), {

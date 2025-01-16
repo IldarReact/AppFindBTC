@@ -5,14 +5,17 @@ const Balance: React.FC = () => {
   const { balance, fetchBalance } = useBlockchainStore();
 
   useEffect(() => {
-    fetchBalance('USER_ADDRESS');
+    console.log('Компонент Balance смонтирован. Запрашиваем баланс...');
+    fetchBalance();
   }, [fetchBalance]);
+
+  console.log('Текущий баланс:', balance);
 
   return (
     <div className="balance">
-      <div>BTC: {balance.ETH}</div>
-      <div>USDT: {balance.USDT}</div>
-      <div>TON: {balance.TON}</div>
+      <div>ETH: {balance.ETH.toFixed(4)}</div>
+      <div>TON: {balance.TON.toFixed(4)}</div>
+      <div>$: {balance.$.toFixed(2)}</div>
     </div>
   );
 };

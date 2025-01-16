@@ -1,6 +1,6 @@
 import React from 'react';
 import { ToolCard } from './ToolCard';
-import { AVAILABLE_TOOLS } from '../../utils/constants';
+import { AVAILABLE_TOOLS } from '../../shared/utils/constants';
 
 export const ToolList: React.FC = () => {
   return (
