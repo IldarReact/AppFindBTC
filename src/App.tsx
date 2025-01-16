@@ -72,7 +72,7 @@ function App() {
     <div className="app">
       <Balance />
       <HexGrid />
-      {/* <ToolList /> */}
+      <ToolList />
     </div>
   );
 }
