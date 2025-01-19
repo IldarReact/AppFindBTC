@@ -1,42 +1,53 @@
 import { create } from 'zustand';
-import type { User } from '../shared/types/tools.types';
-import { doc, setDoc } from 'firebase/firestore';
-import { db } from '@/shared/api/firebase/config';
+import type { User, Balance } from '../shared/types/tools.types';
+import { createUser } from '@/shared/api/firebase/db';
 
 interface UserState {
     user: User | null;
     setUser: (user: User | null) => void;
-    updateBalance: (amount: number) => void;
+    updateBalance: (currency: keyof Balance, amount: number) => void;
     addTool: (toolId: string) => void;
 }
-
-export const createUser = async (telegramId: number, username: string) => {
-    await setDoc(doc(db, 'users', telegramId.toString()), {
-        telegramId,
-        username,
-        balance: 10, // Начальный баланс $10
-        tools: [],
-        miningCount: 0,
-        createdAt: new Date(),
-    });
-};
 
 export const useUserStore = create<UserState>((set) => ({
     user: null,
     setUser: (user) => {
-        console.log('Устанавливаем пользователя:', user);
-        set({ user });
+        if (user) {
+            console.log('Устанавливаем пользователя:', user);
+            set({ user });
+        } else {
+            console.warn('Пользователь не передан или равен null.');
+        }
     },
-    updateBalance: (amount) => set((state) => ({
-        user: state.user ? {
-            ...state.user,
-            balance: state.user.balance + amount
-        } : null
-    })),
+    updateBalance: (currency, amount) => set((state) => {
+        if (!state.user) {
+            console.warn('Пользователь не инициализирован.');
+            return state;
+        }
+
+        return {
+            user: {
+                ...state.user,
+                balance: {
+                    ...state.user.balance,
+                    [currency]: state.user.balance[currency] + amount,
+                },
+            },
+        };
+    }),
     addTool: (toolId) => set((state) => ({
         user: state.user ? {
             ...state.user,
-            tools: [...state.user.tools, toolId]
-        } : null
-    }))
+            tools: [...state.user.tools, toolId],
+        } : null,
+    })),
 }));
+
+export const initializeUser = async (telegramId: number, username: string, balance: Balance) => {
+    try {
+        await createUser(telegramId, username, balance);
+        console.log('Пользователь успешно создан в Firestore.');
+    } catch (error) {
+        console.error('Ошибка при создании пользователя в Firestore:', error);
+    }
+};

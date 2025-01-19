@@ -5,7 +5,7 @@ import { useUserStore } from '../../store/userStore';
 
 const HexGrid = () => {
   const { mineCell, cells } = useGameStore();
-  const { user } = useUserStore(); // Получаем текущего пользователя
+  const { user } = useUserStore();
   const [revealedCells, setRevealedCells] = useState(new Set<string>());
 
   const [dimensions, setDimensions] = useState({
@@ -41,16 +41,13 @@ const HexGrid = () => {
 
       const cell = cells[cellId];
       if (cell) {
-        console.log(
-          `Открыта ячейка с ${Object.keys(cell.resources)[0]}: ${Object.values(cell.resources)[0]}`,
-        );
-
-        if (!user?.telegramId) {
-          console.error('Пользователь не авторизован. Невозможно добыть ресурсы.');
+        if (!user || user.telegramId === 0) {
+          console.warn(
+            'Пользователь не авторизован. Невозможно добыть ресурсы.',
+          );
           return;
         }
 
-        console.log(`Добываем ресурсы для пользователя:`, user.telegramId);
         mineCell(cellId, user.telegramId.toString());
       }
     }

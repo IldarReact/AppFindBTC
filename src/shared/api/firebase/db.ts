@@ -1,21 +1,29 @@
 import { doc, setDoc, updateDoc, increment, getDoc } from 'firebase/firestore';
 import { db } from './config';
-import type { User } from '../../types/tools.types';
+import type { User, Balance } from '../../types/tools.types';
 
-export const createUser = async (telegramId: number, username: string) => {
-  await setDoc(doc(db, 'users', telegramId.toString()), {
+export const createUser = async (telegramId: number, username: string, balance: Balance) => {
+  const userRef = doc(db, 'users', telegramId.toString());
+  const userDoc = await getDoc(userRef);
+
+  if (userDoc.exists()) {
+    console.log('Пользователь уже существует:', userDoc.data());
+    return;
+  }
+
+  await setDoc(userRef, {
     telegramId,
     username,
-    balance: 0,
+    balance,
     tools: [],
     miningCount: 0,
-    createdAt: new Date()
+    createdAt: new Date(),
   });
 };
 
-export const updateUserBalance = async (userId: string, amount: number) => {
+export const updateUserBalance = async (userId: string, currency: keyof Balance, amount: number) => {
   await updateDoc(doc(db, 'users', userId), {
-    balance: increment(amount)
+    [`balance.${currency}`]: increment(amount),
   });
 };
 

@@ -1,21 +1,20 @@
-import { useBlockchainStore } from '@/store/blockchainStore';
+import { useUserStore } from '@/store/userStore';
 import React, { useEffect } from 'react';
 
 const Balance: React.FC = () => {
-  const { balance, fetchBalance } = useBlockchainStore();
+  const { user } = useUserStore(); // Получаем данные пользователя
 
   useEffect(() => {
     console.log('Компонент Balance смонтирован. Запрашиваем баланс...');
-    fetchBalance();
-  }, [fetchBalance]);
+  }, []);
 
-  console.log('Текущий баланс:', balance);
+  console.log('Текущий баланс:', user?.balance);
 
   return (
     <div className="balance">
-      <div>ETH: {balance.ETH.toFixed(4)}</div>
-      <div>TON: {balance.TON.toFixed(4)}</div>
-      <div>$: {balance.$.toFixed(2)}</div>
+      <div>ETH: {user?.balance.ETH?.toFixed(4) || 0}</div>
+      <div>TON: {user?.balance.TON?.toFixed(4) || 0}</div>
+      <div>$: {user?.balance.$?.toFixed(2) || 0}</div>
     </div>
   );
 };
