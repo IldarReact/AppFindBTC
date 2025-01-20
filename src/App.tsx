@@ -5,6 +5,9 @@ import { getUser } from './shared/api/firebase/db';
 import HexGrid from './widgets/Field/HexGrid';
 import Balance from './widgets/Profile/Balance';
 import { ToolList } from './widgets/Shop/ToolList';
+// import DebugStatus from './components/DebugStatus';
+import { initialBalance } from '@/shared/config/balance';
+
 
 function App() {
   const { setUser, user } = useUserStore();
@@ -33,11 +36,6 @@ function App() {
               setUser(existingUser);
             } else {
               console.log('Создаем нового пользователя');
-              const initialBalance = {
-                ETH: 0,
-                TON: 0,
-                $: 10,
-              };
 
               await initializeUser(
                 userData.telegramId,
@@ -96,10 +94,11 @@ function App() {
 
   return (
     <div className="app">
-      <h2>2.1</h2>
+      <h2>2.3</h2>
       <Balance />
       <HexGrid />
       <ToolList />
+      {/* <DebugStatus /> */}
     </div>
   );
 }

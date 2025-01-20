@@ -6,31 +6,71 @@ export const BlockchainManager = () => {
     const ethService = EthereumService();
     const tonService = TonService();
 
-    const getBalance = async (network: 'ETH' | 'TON', address: string): Promise<Balance> => {
-        if (network === 'ETH') {
-            return ethService.getBalance(address);
-        } else if (network === 'TON') {
-            return tonService.getBalance(address);
+    // Поддерживаемые сети
+    const supportedNetworks = ['ETH', 'TON'];
+
+    // Проверка на корректность сети
+    const validateNetwork = (network: string): void => {
+        if (!supportedNetworks.includes(network)) {
+            throw new Error(`Неподдерживаемая сеть: ${network}. Поддерживаются: ${supportedNetworks.join(', ')}`);
         }
-        throw new Error('Unsupported network');
+    };
+
+    const getBalance = async (network: 'ETH' | 'TON', address: string): Promise<Balance> => {
+        try {
+            // Проверяем корректность сети
+            validateNetwork(network);
+
+            if (network === 'ETH') {
+                return await ethService.getBalance(address);
+            } else if (network === 'TON') {
+                return await tonService.getBalance(address);
+            }
+
+            // Эта строка никогда не выполнится, но TypeScript требует её наличия
+            throw new Error('Неподдерживаемая сеть');
+        } catch (error) {
+            console.error(`Ошибка при получении баланса в сети ${network}:`, error);
+            throw new Error(`Не удалось получить баланс: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
+        }
     };
 
     const sendTransaction = async (network: 'ETH' | 'TON', to: string, amount: string): Promise<string> => {
-        if (network === 'ETH') {
-            return ethService.sendTransaction(to, amount);
-        } else if (network === 'TON') {
-            return tonService.sendTransaction(to, amount);
+        try {
+            // Проверяем корректность сети
+            validateNetwork(network);
+
+            if (network === 'ETH') {
+                return await ethService.sendTransaction(to, amount);
+            } else if (network === 'TON') {
+                return await tonService.sendTransaction(to, amount);
+            }
+
+            // Эта строка никогда не выполнится, но TypeScript требует её наличия
+            throw new Error('Неподдерживаемая сеть');
+        } catch (error) {
+            console.error(`Ошибка при отправке транзакции в сети ${network}:`, error);
+            throw new Error(`Не удалось отправить транзакцию: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
         }
-        throw new Error('Unsupported network');
     };
 
     const validateAddress = (network: 'ETH' | 'TON', address: string): boolean => {
-        if (network === 'ETH') {
-            return ethService.validateAddress(address);
-        } else if (network === 'TON') {
-            return tonService.validateAddress(address);
+        try {
+            // Проверяем корректность сети
+            validateNetwork(network);
+
+            if (network === 'ETH') {
+                return ethService.validateAddress(address);
+            } else if (network === 'TON') {
+                return tonService.validateAddress(address);
+            }
+
+            // Эта строка никогда не выполнится, но TypeScript требует её наличия
+            throw new Error('Неподдерживаемая сеть');
+        } catch (error) {
+            console.error(`Ошибка при проверке адреса в сети ${network}:`, error);
+            return false;
         }
-        throw new Error('Unsupported network');
     };
 
     return {

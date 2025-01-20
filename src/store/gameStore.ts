@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { generateInitialGrid } from '@/shared/utils/grid';
 import { Cell, Tool } from '@/shared/types/game.types';
 import { updateUserBalance } from '@/shared/api/firebase/user';
+import { initialBalance } from '@/shared/config/balance';
 
 interface GameState {
   cells: Record<string, Cell>;
@@ -14,12 +15,6 @@ interface GameState {
   mineCell: (cellId: string, userId: string) => void;
   buyTool: (tool: Tool) => boolean;
 }
-
-const initialBalance = {
-  ETH: 0,
-  TON: 0,
-  $: 0
-};
 
 export const useGameStore = create<GameState>((set, get) => ({
   cells: generateInitialGrid(),
