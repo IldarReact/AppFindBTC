@@ -3,6 +3,7 @@ export interface Balance {
     TON: number;
     $: number;
 }
+
 export interface User {
     telegramId: number;
     username: string;

@@ -1,70 +1,102 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useUserStore, initializeUser } from './store/userStore';
+import { WebAppService } from './shared/api/telegram/webApp';
+import { getUser } from './shared/api/firebase/db';
 import HexGrid from './widgets/Field/HexGrid';
 import Balance from './widgets/Profile/Balance';
 import { ToolList } from './widgets/Shop/ToolList';
 
 function App() {
   const { setUser, user } = useUserStore();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const init = async () => {
-      let user;
+    const initUser = async () => {
+      const webApp = WebAppService.getInstance();
 
-      if (window.Telegram?.WebApp) {
-        console.log('Telegram WebApp доступен:', window.Telegram.WebApp);
-        const userData = window.Telegram.WebApp.initDataUnsafe?.user;
-        user = userData || {
-          id: 0,
-          username: 'Guest',
-        };
-      } else {
-        console.warn(
-          'Telegram WebApp недоступен. Используем временного пользователя.',
-        );
-        user = {
-          id: 0, // Используем число вместо строки
-          username: 'Guest',
-        };
-      }
-
-      const initialBalance = {
-        ETH: 0,
-        TON: 0,
-        $: 10,
-      };
-
-      console.log('Используемый пользователь:', user);
-
-      // Инициализация пользователя
-      setUser({
-        telegramId: Number(user.id), // Теперь это будет 0, а не NaN
-        username: user.username,
-        balance: initialBalance,
-        tools: [],
-        miningCount: 0,
-      });
-
-      // Инициализация пользователя в Firestore
       try {
-        await initializeUser(Number(user.id), user.username, initialBalance);
-        console.log('Пользователь инициализирован в Firestore.');
-      } catch (error) {
-        console.error(
-          'Ошибка при инициализации пользователя в Firestore:',
-          error,
-        );
+        // Увеличим время ожидания инициализации WebApp
+        setTimeout(async () => {
+          // Проверяем доступность WebApp и получаем пользовательские данные
+          const isWebAppAvailable = await webApp.initialize();
+          const userData = webApp.getUserData();
+
+          // Если WebApp доступен И есть данные пользователя
+          if (isWebAppAvailable && userData) {
+            console.log('WebApp доступен, получены данные:', userData);
+
+            // Проверяем существующего пользователя
+            const existingUser = await getUser(userData.telegramId.toString());
+
+            if (existingUser) {
+              console.log('Найден существующий пользователь:', existingUser);
+              setUser(existingUser);
+            } else {
+              console.log('Создаем нового пользователя');
+              const initialBalance = {
+                ETH: 0,
+                TON: 0,
+                $: 10,
+              };
+
+              await initializeUser(
+                userData.telegramId,
+                userData.username,
+                initialBalance,
+              );
+
+              const newUser = await getUser(userData.telegramId.toString());
+              if (newUser) {
+                setUser(newUser);
+              }
+            }
+          } else {
+            console.log('WebApp недоступен или нет данных пользователя');
+
+            // Создаем тестового пользователя только если действительно нет данных
+            if (!isWebAppAvailable || !userData) {
+              const testUser = {
+                telegramId: 0,
+                username: 'WebTest',
+                balance: {
+                  ETH: 0,
+                  TON: 0,
+                  $: 10,
+                },
+                tools: [],
+                miningCount: 0,
+              };
+
+              setUser(testUser);
+            }
+          }
+        }, 1000); // Даем время на инициализацию WebApp
+      } catch (err) {
+        console.error('Ошибка инициализации:', err);
+        const errorMessage =
+          err instanceof Error ? err.message : 'Неизвестная ошибка';
+        setError(errorMessage);
+
+        if (webApp.isWebAppAvailable()) {
+          await webApp.showAlert(errorMessage);
+        }
       }
     };
 
-    init();
+    initUser();
   }, [setUser]);
 
-  console.log('Текущий пользователь:', user);
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
+
+  if (!user) {
+    return <div className="error-message">Пользователь не авторизован</div>;
+  }
 
   return (
     <div className="app">
-      <h2>1.9</h2>
+      <h2>2.1</h2>
       <Balance />
       <HexGrid />
       <ToolList />

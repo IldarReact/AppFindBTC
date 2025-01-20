@@ -15,35 +15,102 @@ declare global {
 }
 
 export class WebAppService {
-    private static instance: WebAppService;
-    private webApp = window.Telegram?.WebApp;
+    // Делаем instance приватным статическим свойством
+    private static _instance: WebAppService | null = null;
+    public webApp: TelegramWebApp | null = null;
+    private initializationPromise: Promise<boolean>;
+    private readonly TIMEOUT = 2000;
+    private readonly INTERVAL = 200;
 
     private constructor() {
-        if (!this.webApp) {
-            throw new Error('Telegram WebApp is not available');
-        }
-    }
+        this.initializationPromise = new Promise<boolean>((resolve) => {
+            if (window.Telegram?.WebApp) {
+                this.webApp = window.Telegram.WebApp;
+                resolve(true);
+                return;
+            }
 
-    static getInstance(): WebAppService {
-        if (!this.instance) {
-            this.instance = new WebAppService();
-        }
-        return this.instance;
-    }
+            const startTime = Date.now();
+            
+            const checkWebApp = () => {
+                if (window.Telegram?.WebApp) {
+                    this.webApp = window.Telegram.WebApp;
+                    console.log('WebApp найден:', this.webApp);
+                    resolve(true);
+                } else if (Date.now() - startTime >= this.TIMEOUT) {
+                    console.log('WebApp не доступен после таймаута');
+                    resolve(false);
+                } else {
+                    setTimeout(checkWebApp, this.INTERVAL);
+                }
+            };
 
-    initialize() {
-        this.webApp.ready();
-        this.webApp.expand();
-    }
-
-    showAlert(message: string) {
-        this.webApp.showPopup({
-            message,
-            buttons: [{ type: 'ok' }]
+            checkWebApp();
         });
     }
 
-    closeApp() {
+    // Правильно определяем статический метод getInstance
+    public static getInstance(): WebAppService {
+        if (!WebAppService._instance) {
+            WebAppService._instance = new WebAppService();
+        }
+        return WebAppService._instance;
+    }
+
+    async initialize(): Promise<boolean> {
+        const isAvailable = await this.initializationPromise;
+        if (!isAvailable || !this.webApp) {
+            return false;
+        }
+        
+        try {
+            this.webApp.ready();
+            this.webApp.expand();
+            return true;
+        } catch (error) {
+            console.error('Ошибка инициализации WebApp:', error);
+            return false;
+        }
+    }
+
+    getUserData() {
+        console.log('Проверка initDataUnsafe:', this.webApp?.initDataUnsafe);
+        console.log('Проверка user:', this.webApp?.initDataUnsafe?.user);
+        
+        if (!this.webApp?.initDataUnsafe?.user) {
+            console.log('Данные пользователя недоступны');
+            return null;
+        }
+
+        const user = this.webApp.initDataUnsafe.user;
+        return {
+            telegramId: Number(user.id),
+            username: user.username || `user${user.id}`
+        };
+    }
+
+    async showAlert(message: string): Promise<void> {
+        if (!this.webApp) {
+            console.warn('WebApp не доступен для показа сообщения');
+            return;
+        }
+        
+        try {
+            this.webApp.showPopup({
+                message,
+                buttons: [{ type: 'ok' }]
+            });
+        } catch (error) {
+            console.error('Ошибка показа алерта:', error);
+        }
+    }
+
+    closeApp(): void {
+        if (!this.webApp) return;
         this.webApp.close();
+    }
+
+    isWebAppAvailable(): boolean {
+        return !!this.webApp;
     }
 }

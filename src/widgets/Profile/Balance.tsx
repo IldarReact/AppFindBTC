@@ -12,6 +12,7 @@ const Balance: React.FC = () => {
 
   return (
     <div className="balance">
+      {user?.username && <div>Ник: {user.username.toUpperCase()}</div>}
       <div>ETH: {user?.balance.ETH?.toFixed(4) || 0}</div>
       <div>TON: {user?.balance.TON?.toFixed(4) || 0}</div>
       <div>$: {user?.balance.$?.toFixed(2) || 0}</div>
