@@ -5,6 +5,7 @@ export const TESTNET_CONFIG = {
     },
     TON: {
         endpoint: 'https://testnet.toncenter.com/api/v2/jsonRPC',
-        apiKey: 'YOUR_TONCENTER_API_KEY'
+        // apiKey: 'YOUR_TONCENTER_API_KEY'
+        apiKey: import.meta.env.VITE_FIREBASE_API_KEY
     }
 } as const;

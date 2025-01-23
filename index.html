@@ -3,43 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <link rel="stylesheet" href="styles.css?v=1.1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src *;"
+      content="
+      default-src 'self';
+      script-src 'self' https://telegram.org;
+      connect-src 'self' https://*.infura.io https://*.ton.org https://*.firebaseio.com;
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: https:;
+      font-src 'self';
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+      frame-ancestors 'none';
+      block-all-mixed-content;
+      upgrade-insecure-requests;
+    "
     />
-    <title>Vite + React + TS</title>
+    <title>Hex Game</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script
-      async
-      src="https://telegram.org/js/telegram-web-app.js"
-      data-telegram-login="App_Find_BTC_bot"
-      data-size="large"
-      data-onauth="onTelegramAuth(user)"
-      data-request-access="write"
-    ></script>
-    <script type="text/javascript">
-      function onTelegramAuth(user) {
-        alert(
-          'Logged in as ' +
-            user.first_name +
-            ' ' +
-            user.last_name +
-            ' (' +
-            user.id +
-            (user.username ? ', @' + user.username : '') +
-            ')',
-        );
-      }
-    </script>
-    <!-- <script defer src="https://telegram.org/js/telegram-webapp.js"></script> -->
-    <script>
-      console.log('WebApp loaded:', !!window.Telegram?.WebApp);
-      console.log('WebApp details:', window.Telegram?.WebApp);
-    </script>
+    <script async src="https://telegram.org/js/telegram-web-app.js"></script>
   </body>
 </html>
