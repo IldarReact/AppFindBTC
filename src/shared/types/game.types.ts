@@ -1,32 +1,40 @@
-export type TokenType = "ETH" | "BTC" | "TON" | "$";
+import { Timestamp } from 'firebase/firestore';
 
-export interface Tool {
-    id: string;
-    name: string;
-    price: number;
-    type: 'pickaxe' | 'bomb';
-    range: number;
-    uses: number;
-    tokenType: TokenType;
-    power: number;
+export interface UserBalance {
+    $: number
+    ETH: number
+    TON: number
+}
+
+export interface UpdateUserToolsParams {
+    userId: string;
+    tools: Tool[];
+}
+
+export interface User {
+    id: string
+    balance: UserBalance
+    cells: Cell[]
+    createdAt: Timestamp
+    miningCount: number
+    telegramId: number
+    tools: Tool[]
+    username: string
 }
 
 export interface Cell {
-    id: string;
-    position: { x: number; y: number };
-    resources: {
-        BTC?: number;
-        ETH?: number;
-        TON?: number;
-    };
-    mined: boolean;
+    id: string
+    position: { x: number; y: number }
+    resources: { ETH: number; TON: number }
+    mined: boolean
 }
 
-export interface UserStats {
-    totalMined: {
-        BTC: number;
-        ETH: number;
-        TON: number;
-    };
-    toolsUsed: number;
+export interface Tool {
+    id: string
+    name: string
+    power: number
+    price: number
+    tokenType: keyof UserBalance
+    uses: number
+    number: number
 }

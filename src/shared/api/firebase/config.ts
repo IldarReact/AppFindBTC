@@ -1,14 +1,19 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeApp } from "firebase/app"
+import { getFirestore } from "firebase/firestore"
+import { ENV } from "@/shared/config/env"
+import { logger } from "@/shared/lib/logger"
 
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-};
+let app
+try {
+  logger.info("Initializing Firebase with config", ENV.FIREBASE)
+  app = initializeApp(ENV.FIREBASE)
+  logger.info("Firebase initialized successfully")
+} catch (error) {
+  logger.error("Error initializing Firebase", error as Error)
+  throw error
+}
 
-export const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+const db = getFirestore(app)
+logger.info("Firestore instance created")
+
+export { db }

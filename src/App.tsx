@@ -1,106 +1,94 @@
-import { useEffect, useState } from 'react';
-import { useUserStore, initializeUser } from './store/userStore';
-import { WebAppService } from './shared/api/telegram/webApp';
-import { getUser } from './shared/api/firebase/db';
-import HexGrid from './widgets/Field/HexGrid';
-import Balance from './widgets/Profile/Balance';
-import { ToolList } from './widgets/Shop/ToolList';
-// import DebugStatus from './components/DebugStatus';
-import { initialBalance } from '@/shared/config/balance';
+'use client';
 
+import { useState, useEffect } from 'react';
+import { Shop } from '@/widgets/Shop/Shop';
+import { Balance } from '@/widgets/Balance/Balance';
+import { Profile } from '@/widgets/Profile/Profile';
+import { useUserStore } from '@/store/userStore';
+import WebAppService from '@/shared/api/telegram/WebAppService';
+import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
+import { authService } from '@/features/auth/authService';
+import { logger } from '@/shared/lib/logger';
+import type { User } from '@/shared/types/game.types';
+import { BottomNav } from './widgets/Navigation/BottomNav';
+import HexGame from './widgets/HexGrid/HexGame';
 
-function App() {
-  const { setUser, user } = useUserStore();
-  const [error, setError] = useState<string | null>(null);
+export const App = () => {
+  const { setUser } = useUserStore();
+  const [activeView, setActiveView] = useState('game');
+  const [isLoading, setIsLoading] = useState(true);
+  const [_error, setError] = useState<string | null>(null);
+
+  const handleViewChange = (view: string) => {
+    setActiveView(view);
+  };
 
   useEffect(() => {
-    const initUser = async () => {
-      const webApp = WebAppService.getInstance();
-
+    const initializeApp = async () => {
       try {
-        // Увеличим время ожидания инициализации WebApp
-        setTimeout(async () => {
-          // Проверяем доступность WebApp и получаем пользовательские данные
-          const isWebAppAvailable = await webApp.initialize();
-          const userData = webApp.getUserData();
+        logger.info('Starting application initialization');
+        const webApp = WebAppService.getInstance();
+        webApp.initialize();
 
-          // Если WebApp доступен И есть данные пользователя
-          if (isWebAppAvailable && userData) {
-            console.log('WebApp доступен, получены данные:', userData);
+        if (webApp.isAvailable()) {
+          logger.info('Telegram WebApp is available');
+          webApp.expand();
+          const telegramUser = webApp.getUserData();
 
-            // Проверяем существующего пользователя
-            const existingUser = await getUser(userData.telegramId.toString());
-
-            if (existingUser) {
-              console.log('Найден существующий пользователь:', existingUser);
-              setUser(existingUser);
-            } else {
-              console.log('Создаем нового пользователя');
-
-              await initializeUser(
-                userData.telegramId,
-                userData.username,
-                initialBalance,
-              );
-
-              const newUser = await getUser(userData.telegramId.toString());
-              if (newUser) {
-                setUser(newUser);
-              }
+          if (telegramUser) {
+            try {
+              const user = await authService.signInWithTelegram(telegramUser);
+              setUser(user as User);
+              setIsLoading(false);
+            } catch (error) {
+              const errorMessage =
+                error instanceof Error ? error.message : 'Unknown error';
+              setError(errorMessage);
+              webApp.showAlert(`Login error: ${errorMessage}`);
             }
           } else {
-            console.log('WebApp недоступен или нет данных пользователя');
-
-            // Создаем тестового пользователя только если действительно нет данных
-            if (!isWebAppAvailable || !userData) {
-              const testUser = {
-                telegramId: 0,
-                username: 'WebTest',
-                balance: {
-                  ETH: 0,
-                  TON: 0,
-                  $: 10,
-                },
-                tools: [],
-                miningCount: 0,
-              };
-
-              setUser(testUser);
-            }
+            setError('Telegram user data unavailable');
           }
-        }, 1000); // Даем время на инициализацию WebApp
-      } catch (err) {
-        console.error('Ошибка инициализации:', err);
-        const errorMessage =
-          err instanceof Error ? err.message : 'Неизвестная ошибка';
-        setError(errorMessage);
-
-        if (webApp.isWebAppAvailable()) {
-          await webApp.showAlert(errorMessage);
+        } else {
+          setError('Telegram WebApp недоступен');
         }
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error';
+        setError(`Initialization error: ${errorMessage}`);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    initUser();
+    initializeApp();
   }, [setUser]);
 
-  if (error) {
-    return <div className="error-message">{error}</div>;
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
-  if (!user) {
-    return <div className="error-message">Пользователь не авторизован</div>;
-  }
+  const renderView = () => {
+    switch (activeView) {
+      case 'game':
+        return <HexGame />;
+      case 'shop':
+        return <Shop />;
+      case 'profile':
+        return <Profile />;
+      case 'balance':
+        return <Balance />;
+      default:
+        return <HexGame />;
+    }
+  };
 
   return (
-    <div className="app">
-      <h2>2.3</h2>
-      <Balance />
-      <HexGrid />
-      <ToolList />
-      {/* <DebugStatus /> */}
-    </div>
+    <ErrorBoundary>
+      <div className="app-container flex flex-col h-screen">
+        <div className='flex-1 overflow-auto pb-16'>{renderView()}</div>
+        <BottomNav activeView={activeView} onViewChange={handleViewChange} />
+      </div>
+    </ErrorBoundary>
   );
-}
-
-export default App;
+};

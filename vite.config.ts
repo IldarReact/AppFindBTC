@@ -1,30 +1,47 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import path from 'path';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 export default defineConfig({
-  plugins: [
-    react(),
-    nodePolyfills({
-      include: ['buffer'],
-    }),
-  ],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
+    plugins: [
+        react(),
+        nodePolyfills({
+            include: ['buffer', 'crypto', 'util', 'stream'],
+            globals: {
+                Buffer: true,
+                global: true,
+                process: true,
+            },
+        }),
+    ],
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, './src'),
+        },
     },
-  },
-  server: {
-    host: true,
-    port: 3000,
-    headers: {
-      'Content-Security-Policy': "frame-ancestors 'self' https://web.telegram.org https://*.telegram.org",
-      'X-Frame-Options': 'ALLOW-FROM https://web.telegram.org/',
+    define: {
+        'process.env': {},
+        'global': {},
     },
-  },
-  build: {
-    outDir: 'dist',
-    sourcemap: true,
-  },
+    build: {
+        sourcemap: true,
+        commonjsOptions: {
+            transformMixedEsModules: true,
+        },
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    vendor: ['react', 'react-dom', 'firebase/app', 'firebase/firestore'],
+                    web3: ['@ton/ton'],
+                },
+            },
+        },
+    },
+    optimizeDeps: {
+        include: ['@ton/ton', 'firebase/app', 'firebase/firestore'],
+        esbuildOptions: {
+            target: 'esnext',
+        },
+    },
 });

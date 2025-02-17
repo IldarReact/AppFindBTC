@@ -1,50 +1,45 @@
-import { Cell } from "@/shared/types/game.types";
+import type { Cell } from "../../shared/types/game.types"
 
-export const generateInitialGrid = () => {
-    const cells: Record<string, Cell> = {};
-    const size = 5;
-    const tokens = ['ETH', 'BTC', 'TON'];
+const randomInt = (min: number, max: number) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+export const generateInitialGrid = (size = 10): Record<string, Cell> => {
+    const cells: Record<string, Cell> = {}
 
     for (let x = 0; x < size; x++) {
         for (let y = 0; y < size; y++) {
-            const id = `${x}-${y}`;
-            const resources = {
-                [tokens[Math.floor(Math.random() * tokens.length)]]:
-                    Number((Math.random() * 0.1).toFixed(8))
-            };
-
-            cells[id] = {
-                id,
+            cells[`${x}-${y}`] = {
+                id: `${x}-${y}`,
                 position: { x, y },
-                resources,
-                mined: false
-            };
+                resources: {
+                    ETH: randomInt(0, 100) / 1000,
+                    TON: randomInt(0, 100) / 1000,
+                },
+                mined: false,
+            }
         }
     }
 
-    return cells;
-};
+    return cells
+}
 
-export const calculateRange = (
-    cellId: string,
-    cells: Record<string, Cell>,
-    range: number
-) => {
-    const [x, y] = cellId.split('-').map(Number);
-    const inRange: Record<string, boolean> = {};
+export const calculateRange = (cellId: string, cells: Record<string, Cell>, range: number): string[] => {
+    const [x, y] = cellId.split("-").map(Number)
+    const inRange: string[] = []
 
     for (let dx = -range; dx <= range; dx++) {
         for (let dy = -range; dy <= range; dy++) {
             if (Math.abs(dx) + Math.abs(dy) <= range) {
-                const newX = x + dx;
-                const newY = y + dy;
-                const targetId = `${newX}-${newY}`;
+                const newX = x + dx
+                const newY = y + dy
+                const targetId = `${newX}-${newY}`
                 if (cells[targetId]) {
-                    inRange[targetId] = true;
+                    inRange.push(targetId)
                 }
             }
         }
     }
 
-    return inRange;
-};
+    return inRange
+}

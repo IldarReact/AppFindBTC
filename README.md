@@ -1,11 +1,54 @@
-# React + TypeScript + Vite
+# Hex Mining Game
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+Hex Mining Game is an interactive web-based game where players can mine resources (ETH and TON) from a hexagonal grid. Players can purchase tools to improve their mining efficiency and manage their in-game balance.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project was bootstrapped with Vite, React, and TypeScript.
+
+## Features
+
+- Hexagonal grid-based mining field
+- Resource mining (ETH and TON)
+- Tool shop with various mining tools
+- User balance management
+- Real-time balance updates via WebSocket
+- Responsive design for various screen sizes
+
+## Technologies Used
+
+- React
+- TypeScript
+- Vite
+- Zustand (for state management)
+- Firebase (Firestore for database)
+- Tailwind CSS (for styling)
+- WebSocket (for real-time balance updates)
+
+## Setup
+
+1. Clone the repository:
+2. Install dependencies: npm install
+3. Set up your Firebase project and add your configuration to `.env`
+4. Start the development server: npm run dev (Web Telegram t.me/App_Find_BTC_bot/FindBTC_App)
+
+## Usage
+
+1. Connect your wallet or authenticate with Telegram
+2. Explore the hexagonal grid and click on cells to mine resources
+3. Visit the shop to purchase mining tools
+4. Use tools to increase mining efficiency
+5. Monitor your balance in real-time
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a new branch: `git checkout -b feature/your-feature-name`
+3. Make your changes and commit them: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin feature/your-feature-name`
+5. Submit a pull request
 
 ## Expanding the ESLint configuration
 
@@ -22,29 +65,5 @@ export default tseslint.config({
       tsconfigRootDir: import.meta.dirname,
     },
   },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+});
 ```
